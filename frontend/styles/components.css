@@ -1,0 +1,62 @@
+/* Botones Públicos */
+.btn-primary {
+    background-color: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 12px 30px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Estados del Boleto */
+.ticket-card {
+    border: 2px solid #eee;
+    border-radius: var(--radius);
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    background: white;
+}
+
+.ticket-card:hover {
+    transform: scale(1.05);
+}
+
+.status-disponible {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.status-ocupado {
+    background: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: transparent;
+}
+
+.status-proceso {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffeeba;
+    cursor: not-allowed;
+}
+
+/* Navbar del Admin (Clase Profesional) */
+.admin-navbar {
+    background: var(--primary);
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

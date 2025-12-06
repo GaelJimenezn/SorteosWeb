@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Sorteos UCQ</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/variables.css" />
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+    <style>
+      .admin-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+      }
+      .spin-display {
+        font-size: 4rem;
+        font-weight: 800;
+        color: var(--accent);
+        text-align: center;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="admin-navbar">
+      <div style="font-weight: 800; letter-spacing: 1px">PANEL DE CONTROL</div>
+      <div>
+        <a
+          href="index.html"
+          style="color: white; text-decoration: none; font-size: 0.9rem"
+          >Ver Sitio Público ↗</a
+        >
+      </div>
+    </nav>
+
+    <main class="page-container" style="padding: 30px 20px">
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px">
+        <div class="admin-card">
+          <h3
+            style="
+              color: var(--primary);
+              border-bottom: 1px solid #eee;
+              padding-bottom: 10px;
+            "
+          >
+            Gestión de Participantes
+          </h3>
+          <table
+            style="width: 100%; border-collapse: collapse; margin-top: 15px"
+          >
+            <thead>
+              <tr style="text-align: left; color: #666">
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="lista-boletos"></tbody>
+          </table>
+        </div>
+
+        <div class="admin-card" style="text-align: center">
+          <h3 style="color: var(--primary)">🎰 Sorteo Final</h3>
+          <p style="font-size: 0.8rem; color: #666">
+            Solo boletos CONFIRMADOS participan.
+          </p>
+          <div id="roulette-display" class="spin-display">00</div>
+          <div
+            id="winner-name"
+            style="height: 30px; color: var(--primary); font-weight: bold"
+          ></div>
+          <button id="btn-spin" class="btn-primary" style="width: 100%">
+            GIRAR RULETA
+          </button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="./src/admin/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+:root {
+    /* Identidad Universidad Cuauhtémoc */
+    --primary: #103056;
+    /* Azul Marino */
+    --primary-light: #1A4578;
+    --accent: #78A64B;
+    /* Verde Institucional */
+    --accent-hover: #5D8536;
+
+    /* Neutros */
+    --text-main: #1A1A1A;
+    --text-light: #FFFFFF;
+    --bg-body: #F4F6F9;
+    --white: #FFFFFF;
+
+    /* Configuración */
+    --font-main: 'Montserrat', sans-serif;
+    --shadow: 0 4px 20px rgba(16, 48, 86, 0.1);
+    --radius: 6px;
+}
