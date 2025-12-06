@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - UCQ</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../frontend/styles/variables.css" />
+    <link rel="stylesheet" href="../frontend/styles/main.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar"
+      style="
+        background: var(--primary);
+        padding: 15px;
+        color: white;
+        margin-bottom: 20px;
+      "
+    >
+      <div class="page-container navbar-container">
+        <div class="brand">PANEL DE CONTROL</div>
+        <a
+          href="../frontend/index.html"
+          class="btn-primary"
+          style="font-size: 0.8rem; text-decoration: none"
+          >Ver Sitio Web</a
+        >
+      </div>
+    </nav>
+
+    <div id="admin-app" class="page-container"></div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

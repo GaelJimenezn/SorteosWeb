@@ -1,0 +1,181 @@
+/* --- ADMIN LAYOUT --- */
+.admin-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    padding: 30px 20px;
+}
+
+.panel-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.panel-header {
+    color: var(--primary);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- TABLA --- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    color: #666;
+    padding-bottom: 10px;
+}
+
+.data-table td {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- STATUS BADGES --- */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.badge-proceso {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-confirmado {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* --- ROULETTE --- */
+.roulette-box {
+    text-align: center;
+}
+
+.roulette-number {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 20px 0;
+}
+
+.winner-text {
+    height: 30px;
+    color: var(--primary);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* --- ADMIN LAYOUT --- */
+.admin-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    padding: 30px 20px;
+}
+
+.panel-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.panel-center {
+    text-align: center;
+    height: fit-content;
+}
+
+/* Para el panel de la ruleta */
+
+.panel-header {
+    color: var(--primary);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- TABLA --- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    color: #666;
+    padding-bottom: 10px;
+}
+
+.data-table td {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.text-sub {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* Botón pequeño de tabla */
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+}
+
+/* --- BADGES --- */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-confirmado {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-proceso {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* --- RULETA --- */
+.roulette-display {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 20px 0;
+    transition: transform 0.3s;
+}
+
+.winner-label {
+    height: 30px;
+    color: var(--primary);
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.text-small {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 10px;
+}
