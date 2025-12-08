@@ -1,41 +1,32 @@
-import { activeSorteos, getPendientes } from '../../../backend/services/data.js';
+import { getGlobalStats } from '../../../backend/services/admin.js';
 
-export default function Dashboard() {
-    const pendientes = getPendientes().length;
-    const activos = activeSorteos.length;
-
-    // Mock user count
-    const usersCount = 142;
-    const salesToday = 4500;
+export default async function Dashboard() {
+    // Obtenemos estadísticas reales
+    const stats = await getGlobalStats();
 
     return `
         <h2 class="page-title">📊 Resumen del Sistema</h2>
         
         <div class="stat-grid">
             <div class="stat-card card-primary">
-                <p class="stat-title">Boletos Vendidos</p>
-                <h2 class="stat-value">${usersCount}</h2>
-            </div>
-            
-            <div class="stat-card card-success">
-                <p class="stat-title">Ventas Hoy</p>
-                <h2 class="stat-value">$${salesToday}</h2>
+                <p class="stat-title">Usuarios Totales</p>
+                <h2 class="stat-value">${stats.users}</h2>
             </div>
             
             <div class="stat-card card-warning">
-                <p class="stat-title">Por Validar</p>
-                <h2 class="stat-value">${pendientes}</h2>
+                <p class="stat-title">Boletos Pendientes</p>
+                <h2 class="stat-value">${stats.pending}</h2>
             </div>
             
             <div class="stat-card card-danger">
                 <p class="stat-title">Sorteos Activos</p>
-                <h2 class="stat-value">${activos}</h2>
+                <h2 class="stat-value">${stats.activeSorteos}</h2>
             </div>
         </div>
         
         <div class="module-card">
-            <h3 class="module-title">Actividad Reciente</h3>
-            <p class="text-muted">El sistema está funcionando correctamente. No hay alertas críticas.</p>
+            <h3 class="module-title">Estado del Servidor</h3>
+            <p class="text-muted">🟢 Conectado a Supabase correctamente.</p>
         </div>
     `;
 }

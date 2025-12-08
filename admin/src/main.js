@@ -7,44 +7,47 @@ import Winners from './pages/Winners.js';
 import Settings from './pages/Settings.js';
 
 const initAdmin = async () => {
-    // 1. Auth Check (Mock) - TEMPORARILY DISABLED FOR REVIEW
-    /*
+    // 1. Verificar si hay usuario logueado (Básico)
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser || currentUser.role !== 'admin') {
-        alert('Acceso Denegado: Debes ser administrador');
+    if (!currentUser) {
         window.location.href = '../frontend/index.html';
         return;
     }
-    */
 
     const app = document.getElementById('admin-app');
-
-    // 2. Global State for Module Switching
     let currentModule = 'dashboard';
 
     const render = async () => {
-        // Layout Skeleton
+        // Estructura Base
         app.innerHTML = `
             <div class="admin-wrapper">
                 ${Sidebar(currentModule)}
                 <main class="main-content">
-                    <div id="module-content"></div>
+                    <div id="module-content" style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
+                        Cargando...
+                    </div>
                 </main>
             </div>
         `;
 
         const contentContainer = document.getElementById('module-content');
+
+        // 2. Cargar el módulo con AWAIT (Importante para Supabase)
+        let html = '';
         switch (currentModule) {
-            case 'dashboard': contentContainer.innerHTML = Dashboard(); break;
-            case 'sorteos': contentContainer.innerHTML = Sorteos(); break;
-            case 'validation': contentContainer.innerHTML = Validation(); break;
-            case 'roulette': contentContainer.innerHTML = Roulette(); break;
-            case 'winners': contentContainer.innerHTML = Winners(); break;
-            case 'settings': contentContainer.innerHTML = Settings(); break;
+            case 'dashboard': html = await Dashboard(); break;
+            case 'sorteos': html = await Sorteos(); break;
+            case 'validation': html = await Validation(); break;
+            case 'roulette': html = await Roulette(); break;
+            case 'winners': html = await Winners(); break;
+            case 'settings': html = Settings(); break;
         }
+
+        // Inyectar HTML limpio
+        contentContainer.style.display = 'block'; // Quitar el centrado de "Cargando"
+        contentContainer.innerHTML = html;
     };
 
-    // Expose Switch globally
     window.switchModule = (moduleId) => {
         currentModule = moduleId;
         render();
@@ -55,7 +58,6 @@ const initAdmin = async () => {
         window.location.href = '../frontend/index.html';
     };
 
-    // Initial Render
     await render();
 };
 

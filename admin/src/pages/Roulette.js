@@ -1,72 +1,78 @@
-import { activeSorteos } from '../../../backend/services/data.js';
+import { getActiveSorteos } from '../../../backend/services/sorteos.js';
+import { getBoletosBySorteo } from '../../../backend/services/boletos.js';
 
-export default function Roulette() {
-    window.spinRoulette = () => {
-        const wheel = document.getElementById('roulette-wheel');
-        const result = document.getElementById('roulette-result');
+export default async function Roulette() {
+    const sorteos = await getActiveSorteos();
 
-        // Reset
-        wheel.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
-        wheel.style.transform = 'rotate(0deg)';
-        result.innerText = '...';
+    // Lógica para iniciar el juego
+    window.startGame = async () => {
+        const sorteoId = document.getElementById('select-sorteo').value;
+        const btn = document.getElementById('btn-start');
+        const display = document.getElementById('roulette-display');
+        const winnerLabel = document.getElementById('winner-label');
 
-        // Spin
-        setTimeout(() => {
-            const randomRotation = 1080 + Math.floor(Math.random() * 360); // At least 3 spins
-            wheel.style.transform = `rotate(${randomRotation}deg)`;
+        if (!sorteoId) return alert("Selecciona un sorteo");
 
-            // Show Result after spin
-            setTimeout(() => {
-                const winner = Math.floor(Math.random() * 100);
-                result.innerText = `#${winner}`;
-            }, 3000);
-        }, 100);
+        btn.disabled = true;
+        winnerLabel.innerText = "Cargando participantes...";
+
+        // Traer boletos confirmados de la DB
+        const todos = await getBoletosBySorteo(sorteoId);
+        const confirmados = todos.filter(b => b.estado === 'confirmado' || b.estado === 'ocupado');
+
+        if (confirmados.length === 0) {
+            alert("Este sorteo no tiene boletos vendidos/confirmados aún.");
+            btn.disabled = false;
+            winnerLabel.innerText = "";
+            return;
+        }
+
+        // Animación de Ruleta
+        winnerLabel.innerText = "Girando...";
+        let cycles = 0;
+        let speed = 50;
+
+        const loop = () => {
+            // Elegir uno al azar visualmente
+            const random = confirmados[Math.floor(Math.random() * confirmados.length)];
+            display.innerText = random.numero.toString().padStart(2, '0');
+
+            if (cycles < 40) { // Duración del giro
+                cycles++;
+                if (cycles > 30) speed += 20; // Efecto frenado
+                setTimeout(loop, speed);
+            } else {
+                // GANADOR FINAL
+                const winner = confirmados[Math.floor(Math.random() * confirmados.length)];
+                display.innerText = winner.numero.toString().padStart(2, '0');
+                winnerLabel.innerText = `🎉 Ganador: ${winner.cliente_info?.nombre || 'Anónimo'} (Tel: ${winner.cliente_info?.telefono || 'N/A'})`;
+                display.style.color = '#e74c3c'; // Rojo festivo
+                btn.disabled = false;
+                // Aquí podrías agregar lógica para guardar el ganador en la DB si quisieras
+            }
+        };
+        loop();
     };
 
     return `
         <h2 class="mb-30">🎰 Realizar Sorteo</h2>
-        <div class="module-card" style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
-            <div class="form-group" style="max-width: 400px; margin: 0 auto 30px;">
-                <label style="display:block; margin-bottom:10px; font-weight:bold;">Seleccionar Sorteo</label>
-                <select class="form-input" style="width:100%; padding:10px;">
-                    ${activeSorteos.map(s => `<option value="${s.id}">${s.titulo}</option>`).join('')}
+        <div class="module-card text-center" style="max-width: 600px; margin: 0 auto;">
+            
+            <div style="margin-bottom: 30px;">
+                <label style="display:block; margin-bottom:10px; font-weight:bold;">Seleccionar Sorteo a Jugar:</label>
+                <select id="select-sorteo" class="form-input" style="max-width: 300px; margin: 0 auto;">
+                    ${sorteos.map(s => `<option value="${s.id}">${s.titulo}</option>`).join('')}
                 </select>
             </div>
-            
-            <div style="margin: 50px auto;">
-                <div id="roulette-wheel" style="
-                    width: 250px; 
-                    height: 250px; 
-                    border-radius: 50%; 
-                    border: 15px solid var(--primary); 
-                    margin: 0 auto 30px; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    font-size: 4rem; 
-                    font-weight: bold; 
-                    background: white; 
-                    box-shadow: 0 0 30px rgba(0,0,0,0.1);
-                    position: relative;
-                ">
-                    <span id="roulette-result">00</span>
-                    <div style="
-                        position: absolute; 
-                        top: -25px; 
-                        left: 50%; 
-                        transform: translateX(-50%); 
-                        width: 0; 
-                        height: 0; 
-                        border-left: 15px solid transparent; 
-                        border-right: 15px solid transparent; 
-                        border-top: 25px solid var(--accent);
-                        z-index: 10;
-                    "></div>
-                </div>
-                
-                <button onclick="window.spinRoulette()" class="btn-primary" style="padding: 15px 40px; font-size: 1.2rem;">🎲 GIRAR</button>
-                <p class="text-muted mt-20">El sistema seleccionará un boleto aleatorio de la base de datos.</p>
+
+            <div style="background: #f8f9fa; padding: 40px; border-radius: 20px; border: 4px solid var(--primary);">
+                <div id="roulette-display" style="font-size: 5rem; font-weight: 800; color: var(--primary); font-family: monospace;">00</div>
+                <div id="winner-label" style="height: 30px; margin-top: 10px; font-weight: bold; color: var(--accent);"></div>
             </div>
+            
+            <button id="btn-start" onclick="window.startGame()" class="btn-primary" style="margin-top: 30px; padding: 15px 40px; font-size: 1.2rem;">
+                🎲 GIRAR RULETA
+            </button>
         </div>
     `;
 }

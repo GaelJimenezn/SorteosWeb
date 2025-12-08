@@ -1,11 +1,10 @@
 import Navbar from '../components/Navbar.js';
 import Footer from '../components/Footer.js';
-import { activeSorteos, pastSorteos } from '../../../backend/services/data.js';
+import { getSorteoById } from '../../../backend/services/sorteos.js';
 import { openBuyOverlay } from '../components/BuyOverlay.js';
 
 export default async function RaffleDetailPage(id) {
-    const allSorteos = [...activeSorteos, ...pastSorteos];
-    const sorteo = allSorteos.find(s => s.id === id);
+    const sorteo = await getSorteoById(id);
 
     if (!sorteo) {
         return `
@@ -19,9 +18,8 @@ export default async function RaffleDetailPage(id) {
     }
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    window.openBuy = () => openBuyOverlay(currentUser);
+    window.openBuy = () => openBuyOverlay(currentUser, sorteo.id);
 
-    // Gallery Logic (Inline for simplicity or separated later)
     const renderGallery = () => {
         if (!sorteo.galeria || sorteo.galeria.length === 0) return '';
         return `
@@ -39,13 +37,13 @@ export default async function RaffleDetailPage(id) {
             
             <div class="detail-container">
                 <div class="detail-main">
-                    <img src="${sorteo.imagen}" alt="${sorteo.titulo}" class="detail-hero-img animate">
+                    <img src="${sorteo.imagen_portada}" alt="${sorteo.titulo}" class="detail-hero-img animate">
                     ${renderGallery()}
                 </div>
                 
                 <div class="detail-info card">
                     <h1 class="text-primary">${sorteo.titulo}</h1>
-                    <p class="detail-date text-muted mb-20">📅 Fecha del Sorteo: ${sorteo.fecha}</p>
+                    <p class="detail-date text-muted mb-20">📅 Fecha del Sorteo: ${sorteo.fecha_sorteo}</p>
                     
                     <div class="price-box mb-30">
                         <span class="price-label">Precio del Boleto</span>
@@ -56,14 +54,14 @@ export default async function RaffleDetailPage(id) {
 
                     ${sorteo.detalles ? `
                     <div class="features-list mb-30">
-                        <h3 class="mb-10">Características del Premio:</h3>
+                        <h3 class="mb-10">Características:</h3>
                         <ul>
                             ${sorteo.detalles.map(d => `<li>• ${d}</li>`).join('')}
                         </ul>
                     </div>
                     ` : ''}
 
-                    ${!sorteo.finished ? `
+                    ${sorteo.estado === 'activo' ? `
                     <button onclick="window.openBuy()" class="btn-primary w-100 btn-large pulse">
                         🎟 Comprar Boletos Ahora
                     </button>

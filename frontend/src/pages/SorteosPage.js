@@ -1,22 +1,25 @@
 import Navbar from '../components/Navbar.js';
 import Footer from '../components/Footer.js';
 import RaffleCard from '../components/RaffleCard.js';
-import { activeSorteos, pastSorteos } from '../../../backend/services/data.js';
-import { openBuyOverlay } from '../components/BuyOverlay.js';
+import { getActiveSorteos, getPastSorteos } from '../../../backend/services/sorteos.js';
 
 export default async function SorteosPage() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    window.openBuy = () => openBuyOverlay(currentUser);
+    // 1. Cargar datos en paralelo
+    const [activos, pasados] = await Promise.all([
+        getActiveSorteos(),
+        getPastSorteos()
+    ]);
 
-    // Helper to render past raffle cards (functionally similar to RaffleCard but maybe disabled button)
     const PastRaffleCard = (sorteo) => `
-        <div class="card raffle-card grayscale">
-            <img src="${sorteo.imagen}" alt="${sorteo.titulo}" class="card-img">
+        <div class="card raffle-card grayscale" style="opacity: 0.8;">
+            <div class="card-img-box">
+                 <img src="${sorteo.imagen_portada}" alt="${sorteo.titulo}" class="card-img">
+                 <span class="card-badge" style="background:#666;">Finalizado</span>
+            </div>
             <div class="card-body">
                 <h3>${sorteo.titulo}</h3>
-                <p>${sorteo.descripcion}</p>
-                <div class="price-tag">Finalizado</div>
-                <a href="#/ganadores/${sorteo.id}" class="btn-primary btn-outline w-100 text-center" style="display:block; text-decoration:none;">Ver Ganadores</a>
+                <p class="text-small text-muted">${sorteo.fecha_sorteo}</p>
+                <a href="#/ganadores" class="btn-secondary w-100 text-center" style="display:block; text-decoration:none; margin-top:10px;">Ver Ganadores</a>
             </div>
         </div>
     `;
@@ -33,14 +36,18 @@ export default async function SorteosPage() {
             <section id="active-sorteos" class="mb-50">
                 <h2 class="text-accent mb-30" style="border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px;">🔥 Sorteos Activos</h2>
                 <div class="grid-cards">
-                    ${activeSorteos.map(s => RaffleCard(s)).join('')}
+                    ${activos.length > 0
+            ? activos.map(s => RaffleCard(s)).join('')
+            : '<p class="text-muted">No hay sorteos activos en este momento.</p>'}
                 </div>
             </section>
 
             <section id="past-sorteos">
                 <h2 class="text-muted mb-30" style="border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px;">📂 Sorteos Pasados</h2>
                 <div class="grid-cards">
-                    ${pastSorteos.map(s => PastRaffleCard(s)).join('')}
+                    ${pasados.length > 0
+            ? pasados.map(s => PastRaffleCard(s)).join('')
+            : '<p class="text-muted">No hay historial de sorteos.</p>'}
                 </div>
             </section>
         </div>

@@ -1,41 +1,63 @@
 import { supabase } from './supabase.js';
 
 export const login = async (email, password) => {
+    console.log(`🔵 [Auth] Intentando iniciar sesión para: ${email}`);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
 
+    if (error) {
+        console.error("🔴 [Auth] Error en login:", error.message);
+        throw error;
+    }
+
+    console.log("🟢 [Auth] Login correcto. Obteniendo perfil...");
     // Fetch profile for additional data like role
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+    if (profileError) {
+        console.warn("TB [Auth] No se pudo cargar el perfil extra (quizás es el primer login):", profileError.message);
+    } else {
+        console.log("🟢 [Auth] Perfil cargado:", profile);
+    }
 
     return { ...data.user, ...profile };
 };
 
 export const register = async (email, password, nombre, telefono) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+    console.log(`🔵 [Auth] Registrando nuevo usuario: ${email}`);
 
-    if (data.user) {
-        // Create Profile linked to Auth User
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([{ id: data.user.id, nombre, telefono, role: 'user' }]);
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                nombre: nombre,
+                telefono: telefono
+            }
+        }
+    });
 
-        if (profileError) console.error('Error creando perfil:', profileError);
+    if (error) {
+        console.error("🔴 [Auth] Error en registro:", error.message);
+        throw error;
     }
 
+    console.log("🟢 [Auth] Usuario registrado en Auth. El Trigger SQL debería crear el perfil ahora.");
     return data;
 };
 
 export const logout = async () => {
+    console.log("🔵 [Auth] Cerrando sesión...");
     await supabase.auth.signOut();
     localStorage.removeItem('currentUser');
+    console.log("🟢 [Auth] Sesión cerrada.");
 };
 
-export const getCurrentUser = async () => {
-    const session = await supabase.auth.getSession();
-    if (!session.data.session) return null;
-
-    // Potentially re-fetch profile if needed, or rely on local storage for speed
-    // For now, simpler:
-    return JSON.parse(localStorage.getItem('currentUser'));
+export const getCurrentUser = () => {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (user) console.log("ℹ️ [Auth] Usuario actual en caché:", user.email);
+    return user;
 };
