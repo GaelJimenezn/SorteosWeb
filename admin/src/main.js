@@ -25,9 +25,9 @@ const initAdmin = async () => {
     const render = async () => {
         // Layout Skeleton
         app.innerHTML = `
-            <div style="display: flex;">
+            <div class="admin-wrapper">
                 ${Sidebar(currentModule)}
-                <main style="margin-left: 250px; padding: 40px; background: #f4f6f9; min-height: 100vh; flex: 1;">
+                <main class="main-content">
                     <div id="module-content"></div>
                 </main>
             </div>

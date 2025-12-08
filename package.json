@@ -1,0 +1,28 @@
+{
+  "name": "sorteosweb",
+  "version": "1.0.0",
+  "description": "Plataforma web para la gestión de sorteos. Incluye venta de boletos, selección interactiva (manual/aleatoria), y panel administrativo con ruleta virtual para elegir ganadores.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GaelJimenezn/SorteosWeb.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GaelJimenezn/SorteosWeb/issues"
+  },
+  "homepage": "https://github.com/GaelJimenezn/SorteosWeb#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
