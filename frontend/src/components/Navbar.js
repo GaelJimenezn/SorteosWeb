@@ -12,7 +12,7 @@ export default function Navbar() {
              <button onclick="window.logout()" class="btn-primary" style="padding:5px 10px; font-size:0.8rem;">Salir</button>
            </div>`
         : `<div class="auth-box">
-             <button onclick="window.openLogin()" class="btn-primary">Ingresar</button>
+             <button onclick="window.openLogin()" class="btn-primary">Ingresar / Registrar</button>
            </div>`;
 
     return `
@@ -22,9 +22,10 @@ export default function Navbar() {
                 <span>SORTEOS</span> <span class="brand-badge">UCQ</span>
             </div>
             <div class="nav-links">
-                <a href="#" onclick="location.reload()">Inicio</a>
-                <a href="#" onclick="document.getElementById('sorteos-grid').scrollIntoView({behavior:'smooth'})">Sorteos</a>
-                <a href="#" onclick="document.getElementById('faq-contact-section').scrollIntoView({behavior:'smooth'})">Contacto</a>
+                <a href="#/">Inicio</a>
+                <a href="#/sorteos">Sorteos</a>
+                <a href="#/ganadores">Ganadores</a>
+                <a href="#/contacto">Contacto</a>
             </div>
             ${authHTML}
         </div>

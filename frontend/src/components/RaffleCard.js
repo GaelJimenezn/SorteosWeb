@@ -1,6 +1,6 @@
 export default function RaffleCard(s) {
     return `
-    <div class="card">
+    <div class="card raffle-card" onclick="location.hash='#/sorteo/${s.id}'" style="cursor: pointer; transition: transform 0.2s;">
         <div class="card-img-box">
             <img src="${s.imagen}" class="card-img" alt="${s.titulo}">
             <span class="card-badge">$${s.precio}</span>
@@ -12,8 +12,8 @@ export default function RaffleCard(s) {
                 <span>📅 ${s.fecha}</span>
                 <span>🏆 1er Premio</span>
             </div>
-            <button onclick="window.openBuy()" class="btn-primary w-100">
-                Conseguir Boleto
+            <button class="btn-primary w-100">
+                Ver Detalles
             </button>
         </div>
     </div>`;

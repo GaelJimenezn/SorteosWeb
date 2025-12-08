@@ -6,16 +6,13 @@ import FAQSection from '../components/FAQSection.js';
 import Footer from '../components/Footer.js';
 import { openBuyOverlay } from '../components/BuyOverlay.js';
 // Ajuste de ruta para el backend (asegúrate de que tu servidor permita subir tantos niveles)
-import { sorteoInfo } from '../../../backend/services/data.js';
+import { activeSorteos } from '../../../backend/services/data.js';
 
 export default async function Home() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     window.openBuy = () => openBuyOverlay(currentUser);
 
-    const sorteos = [
-        { ...sorteoInfo, titulo: "iPhone 15 Pro - Edición UCQ" },
-        { ...sorteoInfo, titulo: "Beca Universitaria 100%", precio: 50 }
-    ];
+    const sorteos = activeSorteos;
 
     return `
         ${Navbar()}
@@ -23,8 +20,11 @@ export default async function Home() {
         
         <section id="sorteos-grid" class="page-container section-padding">
             <h2 class="text-center text-primary mb-40">Sorteos Activos</h2>
-            <div class="grid-cards">
-                ${sorteos.map(s => RaffleCard(s)).join('')}
+            <div class="carousel-container">
+                ${sorteos.map(s => `<div class="carousel-item">${RaffleCard(s)}</div>`).join('')}
+            </div>
+            <div class="text-center mt-20">
+                <a href="#/sorteos" class="btn-primary btn-outline">Ver más Sorteos</a>
             </div>
         </section>
 
