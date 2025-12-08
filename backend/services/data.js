@@ -117,6 +117,20 @@ export const validarBoleto = (numero) => {
     return false;
 };
 
+export const rechazarBoleto = (numero) => {
+    const b = boletosDB.find(x => x.numero === numero);
+    if (b) {
+        b.estado = 'disponible';
+        b.cliente = null;
+        return true;
+    }
+    return false;
+};
+
 export const getConfirmados = () => {
     return boletosDB.filter(b => b.estado === 'confirmado');
+};
+
+export const getPendientes = () => {
+    return boletosDB.filter(b => b.estado === 'proceso');
 };
