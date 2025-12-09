@@ -5,20 +5,62 @@ import Validation from './pages/Validation.js';
 import Roulette from './pages/Roulette.js';
 import Winners from './pages/Winners.js';
 import Settings from './pages/Settings.js';
+import Login from './pages/Login.js';
+import { supabase } from '../../backend/services/supabase.js'; // Necesario para la verificación de sesión en vivo
 
 const initAdmin = async () => {
-    // 1. Verificar si hay usuario logueado (Básico)
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) {
-        window.location.href = '../frontend/index.html';
+    const app = document.getElementById('admin-app');
+
+    // 🔍 VERIFICACIÓN DE SEGURIDAD SERVER-SIDE 🔍
+
+    // 1. Obtener sesión activa
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData.session;
+    let isAdmin = false;
+    let profileData = null;
+
+    if (session) {
+        // 2. Si hay sesión VÁLIDA, verificamos el rol en la DB.
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, nombre')
+            .eq('id', session.user.id)
+            .single();
+
+        if (profile && profile.role === 'admin') {
+            isAdmin = true;
+            profileData = profile;
+        }
+
+        // 3. Actualizar el localStorage si es admin
+        if (profileData) {
+            localStorage.setItem('currentUser', JSON.stringify({
+                id: session.user.id,
+                role: profileData.role,
+                nombre: profileData.nombre
+            }));
+        }
+
+        // Si hay sesión pero NO es admin
+        if (!isAdmin) {
+            console.warn("Usuario logueado pero sin permisos de admin");
+            await supabase.auth.signOut(); // Cerramos la sesión inválida
+            // Fallthrough a mostrar login
+        }
+    }
+
+    // --- DECISIÓN DE RENDERIZADO ---
+
+    // CASO 1: NO ES ADMIN (O NO LOGUEADO) -> MOSTRAR LOGIN
+    if (!isAdmin) {
+        app.innerHTML = Login();
         return;
     }
 
-    const app = document.getElementById('admin-app');
+    // CASO 2: ES ADMIN -> CARGAR APLICACIÓN PRINCIPAL
     let currentModule = 'dashboard';
 
     const render = async () => {
-        // Estructura Base
         app.innerHTML = `
             <div class="admin-wrapper">
                 ${Sidebar(currentModule)}
@@ -32,7 +74,6 @@ const initAdmin = async () => {
 
         const contentContainer = document.getElementById('module-content');
 
-        // 2. Cargar el módulo con AWAIT (Importante para Supabase)
         let html = '';
         switch (currentModule) {
             case 'dashboard': html = await Dashboard(); break;
@@ -43,8 +84,7 @@ const initAdmin = async () => {
             case 'settings': html = Settings(); break;
         }
 
-        // Inyectar HTML limpio
-        contentContainer.style.display = 'block'; // Quitar el centrado de "Cargando"
+        contentContainer.style.display = 'block';
         contentContainer.innerHTML = html;
     };
 
@@ -53,9 +93,10 @@ const initAdmin = async () => {
         render();
     };
 
-    window.adminLogout = () => {
+    window.adminLogout = async () => {
+        await supabase.auth.signOut();
         localStorage.removeItem('currentUser');
-        window.location.href = '../frontend/index.html';
+        window.location.reload(); // Recargar para mostrar el login de nuevo
     };
 
     await render();

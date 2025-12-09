@@ -24,6 +24,7 @@ export const uploadImage = async (file) => {
     return data.publicUrl;
 };
 
+// Admin Action: Create New Sorteo
 export const createSorteo = async (sorteoData, filePortada, filesGaleria = []) => {
     try {
         console.log("🔵 [Admin] Iniciando creación de sorteo...", sorteoData);
@@ -65,10 +66,9 @@ export const createSorteo = async (sorteoData, filePortada, filesGaleria = []) =
     }
 };
 
-// Estadísticas simples para el Dashboard
+// Admin Stat: Get Global Stats
 export const getGlobalStats = async () => {
     console.log("🔵 [Admin] Calculando estadísticas...");
-    // Nota: count exacto puede ser lento en tablas gigantes, pero está bien aquí
     const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
     const { count: pendingCount } = await supabase.from('boletos').select('*', { count: 'exact', head: true }).eq('estado', 'proceso');
     const { count: activeSorteos } = await supabase.from('sorteos').select('*', { count: 'exact', head: true }).eq('estado', 'activo');
@@ -78,4 +78,54 @@ export const getGlobalStats = async () => {
         pending: pendingCount || 0,
         activeSorteos: activeSorteos || 0
     };
+};
+
+
+// --- MÓDULO DE VALIDACIÓN (AÑADIDO PARA SOLUCIONAR EL ERROR) ---
+
+// Admin Action: Get Boletos Pendientes
+export const getPendingBoletos = async () => {
+    console.log("🔵 [Admin/Validation] Buscando boletos pendientes...");
+    const { data, error } = await supabase
+        .from('boletos')
+        .select('id, numero, cliente_info') // Traemos el ID (UUID) y cliente_info para la tabla
+        .eq('estado', 'proceso')
+        .order('updated_at', { ascending: true });
+
+    if (error) {
+        console.error("🔴 [Admin/Validation] Error al cargar pendientes:", error.message);
+        return [];
+    }
+    console.log(`🟢 [Admin/Validation] ${data.length} boletos pendientes encontrados.`);
+    return data;
+};
+
+// Admin Action: Validate Boleto (Mark as 'confirmado')
+export const validateBoletoAdmin = async (id) => {
+    console.log(`🔵 [Admin/Validation] Confirmando boleto ID: ${id}`);
+    const { error } = await supabase
+        .from('boletos')
+        .update({ estado: 'confirmado' })
+        .eq('id', id); // Usamos el ID (UUID) del boleto
+
+    if (error) {
+        console.error("🔴 [Admin/Validation] Error al validar:", error.message);
+        return false;
+    }
+    return true;
+};
+
+// Admin Action: Reject Boleto (Mark as 'disponible')
+export const rejectBoletoAdmin = async (id) => {
+    console.log(`🔵 [Admin/Validation] Rechazando/Liberando boleto ID: ${id}`);
+    const { error } = await supabase
+        .from('boletos')
+        .update({ estado: 'disponible', user_id: null, cliente_info: null })
+        .eq('id', id);
+
+    if (error) {
+        console.error("🔴 [Admin/Validation] Error al rechazar:", error.message);
+        return false;
+    }
+    return true;
 };
