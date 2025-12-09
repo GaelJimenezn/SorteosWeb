@@ -4,7 +4,7 @@ export const getBoletosBySorteo = async (sorteoId) => {
     console.log(`🔵 [Boletos] Cargando boletos para sorteo ${sorteoId}...`);
     const { data, error } = await supabase
         .from('boletos')
-        .select('numero, estado')
+        .select('id, numero, estado, cliente_info')
         .eq('sorteo_id', sorteoId)
         .order('numero', { ascending: true });
 

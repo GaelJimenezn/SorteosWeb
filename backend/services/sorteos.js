@@ -57,3 +57,49 @@ export const getSorteoById = async (id) => {
         galeria: galeria ? galeria.map(g => g.imagen_url) : []
     };
 };
+
+export const markSorteoAsFinished = async (id, winnerData) => {
+    console.log(`🔵 [Data] Finalizando sorteo ${id}...`);
+
+    // Preparar objeto de ganador
+    const ganadorInfo = {
+        numero: winnerData.numero,
+        nombre: winnerData.cliente_info?.nombre || 'Desconocido',
+        telefono: winnerData.cliente_info?.telefono || '---',
+        email: winnerData.cliente_info?.email || '---',
+        ciudad: winnerData.cliente_info?.ciudad || '---',
+        estado_cliente: winnerData.cliente_info?.estado || '---',
+        fecha_ganador: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+        .from('sorteos')
+        .update({
+            estado: 'finalizado',
+            ganador_info: ganadorInfo
+        })
+        .eq('id', id);
+
+    if (error) {
+        console.error("🔴 [Data] Error al finalizar sorteo:", error.message);
+        return { success: false, error: error.message };
+    }
+
+    console.log("🟢 [Data] Sorteo finalizado y ganador registrado.");
+    return { success: true };
+};
+
+export const saveWinnerEvidence = async (id, evidenceUrl) => {
+    console.log(`🔵 [Data] Guardando evidencia para sorteo ${id}...`);
+    const { error } = await supabase
+        .from('sorteos')
+        .update({ evidencia_url: evidenceUrl })
+        .eq('id', id);
+
+    if (error) {
+        console.error("🔴 [Data] Error al guardar evidencia:", error.message);
+        return { success: false, error: error.message };
+    }
+    console.log("🟢 [Data] Evidencia guardada.");
+    return { success: true };
+};

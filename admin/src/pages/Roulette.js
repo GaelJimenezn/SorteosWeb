@@ -1,4 +1,4 @@
-import { getActiveSorteos } from '../../../backend/services/sorteos.js';
+import { getActiveSorteos, markSorteoAsFinished } from '../../../backend/services/sorteos.js';
 import { getBoletosBySorteo } from '../../../backend/services/boletos.js';
 
 export default async function Roulette() {
@@ -39,12 +39,9 @@ export default async function Roulette() {
         const radius = size / 2;
 
         // 2. PREPARAR SEGMENTOS
-        // Para que se vea "tupido" pero legible, limitamos visualmente si son demasiados,
-        // pero aseguramos que el ganador esté ahí.
         let segments = [...confirmados];
-
-        // Si hay muchos, tomamos una muestra aleatoria de 50 + el ganador
         let winner = null;
+
         if (segments.length > 50) {
             winner = segments[Math.floor(Math.random() * segments.length)];
             const subset = [];
@@ -53,7 +50,6 @@ export default async function Roulette() {
             }
             subset.push(winner);
             segments = subset;
-            // Mezclar para que el ganador no quede siempre al final
             segments.sort(() => Math.random() - 0.5);
         } else {
             winner = segments[Math.floor(Math.random() * segments.length)];
@@ -67,9 +63,6 @@ export default async function Roulette() {
         segments.forEach((seg, i) => {
             const angle = i * arcSize;
 
-            // Guardar ángulo del ganador
-            // Nota: El puntero está arriba (270 grados / -90 grados).
-            // La rotación final deberá alinear este segmento con la parte superior.
             if (seg.id === winner.id) {
                 winnerAngle = angle;
             }
@@ -81,41 +74,27 @@ export default async function Roulette() {
             ctx.lineTo(centerX, centerY);
             ctx.fill();
 
-            // Dibujar Texto (Número)
+            // Dibujar Texto (MEJORADO: Más grande y centrado)
             ctx.save();
             ctx.translate(centerX, centerY);
             ctx.rotate(angle + arcSize / 2);
             ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
             ctx.fillStyle = "white";
-            ctx.font = "bold 12px Montserrat";
-            ctx.fillText(seg.numero.toString(), radius - 10, 5);
+            ctx.font = "bold 16px Montserrat"; // Texto más grande
+            ctx.fillText(seg.numero.toString(), radius - 15, 0); // Margen del borde
             ctx.restore();
         });
 
-        // 4. CALCULAR ROTACIÓN FINAL
-        // Queremos que el segmento ganador quede arriba (a -90 grados o 270 grados)
-        // La posición actual del ganador en el canvas sin rotar es: winnerAngle + arcSize/2
-        // Meta: RotatingCanvas + (winnerAngle + arcSize/2) = 270 degrees (3*PI/2)
-        // RotatingCanvas = 270 - (winnerAngle + arcSize/2)
-        // Añadimos muchas vueltas completas (e.g. 5 * 360) para efecto de giro.
-
+        // 4. ROTACIÓN
         const segmentCenter = winnerAngle + arcSize / 2;
-        // Convertimos a grados para CSS transform
         const segmentCenterDeg = segmentCenter * (180 / Math.PI);
-
-        // El puntero está arriba (270° en círculo trigonométrico estándar partiendo de derecha=0)
-        // Queremos que (Rotation + SegmentCenter) % 360 == 270
-        // Rotation = 270 - SegmentCenter
-        // Ajuste extra para asegurar muchas vueltas positivas
-        const extraSpins = 360 * 10; // 10 vueltas
+        const extraSpins = 360 * 10;
         const targetRotation = extraSpins + (270 - segmentCenterDeg);
 
-        // Reset transform
         canvas.style.transition = 'none';
         canvas.style.transform = `rotate(0deg)`;
-
-        // Force reflow
-        canvas.offsetHeight;
+        canvas.offsetHeight; // Force Reflow
 
         winnerLabel.innerText = "¡GIRANDO!";
 
@@ -123,18 +102,52 @@ export default async function Roulette() {
         canvas.style.transition = 'transform 6s cubic-bezier(0.1, 0.7, 0.1, 1)';
         canvas.style.transform = `rotate(${targetRotation}deg)`;
 
-        // 6. FINALIZAR
-        setTimeout(() => {
-            winnerLabel.innerHTML = `🎉 GANADOR: <strong>${winner.cliente_info?.nombre || 'Anónimo'}</strong>`;
-            winnerLabel.classList.add('winner-highlight');
-            btn.disabled = false;
+        // 6. FINALIZAR Y MOSTRAR GANADOR (Auto-Finish)
+        setTimeout(async () => {
+            // Marcar sorteo como finalizado en la BD
+            console.log("🏁 Intentando finalizar sorteo...", sorteoId);
+            const r = await markSorteoAsFinished(sorteoId, winner);
+
+            if (!r.success) {
+                console.error("❌ Falló al finalizar sorteo:", r.error);
+                alert("Hubo un error al registrar el ganador en la base de datos. Por favor revisa la consola.");
+            } else {
+                console.log("✅ Sorteo finalizado con éxito.");
+            }
+
+            // Mostrar Tarjeta de Ganador
+            const cliente = winner.cliente_info || {};
+            const nombreGanador = cliente.nombre || 'Desconocido';
+            const telGanador = cliente.telefono || '---';
+            const ciudadGanador = cliente.ciudad || '---';
+            const estadoGanador = cliente.estado || '---';
+
+            winnerLabel.innerHTML = ''; // Limpiar texto simple
+
+            const cardHtml = `
+                <div class="winner-card" style="animation: fadeIn 1s forwards;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+                    <h3 style="color: var(--color-success); margin-bottom: 5px;">¡TENEMOS GANADOR!</h3>
+                    <div style="font-size: 1.5rem; font-weight: 800; margin: 10px 0;">${nombreGanador}</div>
+                    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; text-align: left; margin-top: 15px;">
+                        <p><strong>🎟️ Boleto:</strong> #${winner.numero}</p>
+                        <p><strong>📞 Teléfono:</strong> ${telGanador}</p>
+                        <p><strong>📍 Ubicación:</strong> ${ciudadGanador}, ${estadoGanador}</p>
+                    </div>
+                    <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9rem;">
+                        El sorteo ha sido finalizado automáticamente.
+                    </p>
+                </div>
+             `;
+
+            winnerLabel.innerHTML = cardHtml;
             confettiEffect();
         }, 6000);
     };
 
     const confettiEffect = () => {
         const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 150; i++) {
             const div = document.createElement('div');
             div.style.position = 'fixed';
             div.style.left = Math.random() * 100 + 'vw';
@@ -171,7 +184,8 @@ export default async function Roulette() {
                 </div>
             </div>
             
-            <div id="winner-label" style="min-height: 40px; font-size: 1.5rem; margin-top: 20px; text-align:center; font-weight: bold; color: #F59E0B; text-transform: uppercase;"></div>
+            <!-- Contenedor para el resultado final -->
+            <div id="winner-label" style="min-height: 40px; margin-top: 20px; text-align: center;"></div>
             
             <div class="text-center" style="margin-top: 20px;">
                 <button id="btn-start" onclick="window.startGame()" class="btn btn-primary" style="padding: 15px 50px; font-size: 1.2rem;">
