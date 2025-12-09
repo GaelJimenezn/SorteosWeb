@@ -5,24 +5,24 @@ export default async function Winners() {
     const sorteosFinalizados = await getPastSorteos();
 
     return `
-        <h2 class="mb-30">🏆 Publicar Ganadores</h2>
-        <div class="module-card" style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 600px;">
+        <div class="winners-container">
+            <h2 class="winners-header">🏆 Publicar Ganadores</h2>
             <form onsubmit="event.preventDefault(); alert('Ganador Publicado Mock');">
-                <div style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Sorteo Finalizado</label>
-                    <select class="form-input" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <div class="form-group">
+                    <label class="form-label">Sorteo Finalizado</label>
+                    <select class="form-select">
                         ${sorteosFinalizados.map(s => `<option value="${s.id}">${s.titulo}</option>`).join('')}
                     </select>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Nombre del Ganador</label>
-                    <input type="text" class="form-input" placeholder="Ej. Juan Pérez" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <div class="form-group">
+                    <label class="form-label">Nombre del Ganador</label>
+                    <input type="text" class="form-input" placeholder="Ej. Juan Pérez">
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Foto de Entrega (URL)</label>
-                    <input type="text" class="form-input" placeholder="https://..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <div class="form-group">
+                    <label class="form-label">Foto de Entrega (URL)</label>
+                    <input type="text" class="form-input" placeholder="https://...">
                 </div>
-                <button class="btn-primary w-100">Publicar Ganador</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">Publicar Ganador</button>
             </form>
         </div>
     `;

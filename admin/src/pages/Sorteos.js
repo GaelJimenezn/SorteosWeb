@@ -67,22 +67,47 @@ export default async function Sorteos() {
             </table>
         </div>
 
-        <div id="sorteo-modal" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-            <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
-                <h3 style="margin-top: 0;">Nuevo Sorteo</h3>
+        <div id="sorteo-modal" class="modal-backdrop" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Nuevo Sorteo</h3>
+                </div>
+                
                 <form onsubmit="window.handleCreateSorteo(event)">
-                    <input type="text" id="s-titulo" class="form-input" placeholder="Título" required>
-                    <input type="number" id="s-precio" class="form-input" placeholder="Precio ($)" required>
-                    <input type="date" id="s-fecha_sorteo" class="form-input" required>
-                    <textarea id="s-desc" class="form-input" placeholder="Descripción" style="height:80px;"></textarea>
-                    
-                    <label style="display:block; margin-top:10px;">Portada:</label>
-                    <input type="file" id="file-portada" accept="image/*" required>
-                    
-                    <label style="display:block; margin-top:10px;">Galería:</label>
-                    <input type="file" id="file-galeria" accept="image/*" multiple>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Título del Sorteo</label>
+                            <input type="text" id="s-titulo" class="form-input" placeholder="Ej. iPhone 15 Pro" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Precio del Boleto ($)</label>
+                            <input type="number" id="s-precio" class="form-input" placeholder="0.00" required>
+                        </div>
+                    </div>
 
-                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">Fecha del Sorteo</label>
+                        <input type="date" id="s-fecha_sorteo" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea id="s-desc" class="form-textarea" placeholder="Detalles del premio..." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Imagen de Portada</label>
+                        <input type="file" id="file-portada" accept="image/*" required>
+                        <p class="form-hint">Se recomienda 1080x1080px (Cuadrada)</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Galería de Imágenes</label>
+                        <input type="file" id="file-galeria" accept="image/*" multiple>
+                        <p class="form-hint">Puedes subir múltiples imágenes adicionales.</p>
+                    </div>
+
+                    <div class="modal-footer">
                         <button type="button" onclick="window.closeSorteoModal()" class="btn btn-secondary">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Crear Sorteo</button>
                     </div>
